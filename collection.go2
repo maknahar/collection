@@ -1,13 +1,30 @@
-package main
+package collection
 
-import "fmt"
+type Iterator[T any] interface {
+	//ForEachRemaining Performs the given action for each remaining element until all elements have been processed or
+	//the action throws an error.
+	ForEachRemaining(action func(T) error) error
 
-func Print[T any](s []T) {
-	for _, v := range s {
-		fmt.Print(v)
-	}
+	//HasNext returns true if the iteration has more elements.
+	HasNext() bool
+
+	//Next returns the next element in the iteration.
+	Next() (T, error)
+
+	//Remove removes from the underlying collection the last element returned by this iterator (optional operation).
+	Remove() error
 }
 
-func main() {
-	Print([]string{"Hello, ", "playground\n"})
+// Iterable allows an object to be the target of the enhanced for statement (sometimes called the "for-each loop"
+//statement).
+type Iterable[T any] interface {
+	// ForEach performs the given action for each element of the Iterable until all elements have been processed or the
+	// action throws an error.
+	ForEach(action func(T) error) error
+
+	// Iterator returns a type implementing iterator interface.
+	Iterator() (Iterator[T], error)
+
+	// TODO
+	//SplitIterator()(SplitIterator, error)
 }
