@@ -1,9 +1,19 @@
 package collection
 
+import "errors"
+import "hash"
+
+var (
+	ErrUnsupportedOperation = errors.New("unsupported operation")
+	ErrInValidElement = errors.New("invalid element")
+)
+
+// Iterators allow the caller to remove elements from the underlying collection during the iteration with
+// well-defined semantics.
 type Iterator[T any] interface {
 	//ForEachRemaining Performs the given action for each remaining element until all elements have been processed or
 	//the action throws an error.
-	ForEachRemaining(action func(T) error) error
+	ForEach(action func(T) error) error
 
 	//HasNext returns true if the iteration has more elements.
 	HasNext() bool
@@ -15,16 +25,78 @@ type Iterator[T any] interface {
 	Remove() error
 }
 
-// Iterable allows an object to be the target of the enhanced for statement (sometimes called the "for-each loop"
-//statement).
-type Iterable[T any] interface {
-	// ForEach performs the given action for each element of the Iterable until all elements have been processed or the
-	// action throws an error.
-	ForEach(action func(T) error) error
+// The root interface in the collection hierarchy. A collection represents a group of objects, known as its elements.
+// Some collections allow duplicate elements and others do not.
+// Some are ordered and others unordered.
+// This package does not provide any direct implementations of this interface: it provides implementations of more
+// specific subinterfaces like Set and List. This interface is typically used to pass collections around and manipulate
+// them where maximum generality is desired.
+//
+// Certain methods are specified to be optional. If a collection implementation doesn't implement a particular
+// operation, it should define the corresponding method to throw ErrUnsupportedOperation error.
+//
+// Some collection implementations have restrictions on the elements that they may contain. For example,
+// some implementations prohibit nil elements, and some have restrictions on the types of their elements.
+// Attempting to add an ineligible element throws ErrInValidElement.
+// Attempting to query the presence of an ineligible element may throw an exception, or it may simply return false;
+// some implementations will exhibit the former behavior and some will exhibit the latter.
+// More generally, attempting an operation on an ineligible element whose completion would not result in the insertion
+// of an ineligible element into the collection may throw an exception or it may succeed, at the option of the
+// implementation. Such exceptions are marked as "optional" in the specification for this interface.
+//
+// It is up to each collection to determine its own synchronization policy. In the absence of a stronger guarantee by
+// the implementation, undefined behavior may result from the invocation of any method on a collection that is being
+// mutated by another thread; this includes direct invocations, passing the collection to a method that might perform
+// invocations, and using an existing iterator to examine the collection.
+type Collector[T any] interface {
+    // New allows the user to copy any collection, producing an equivalent collection of the desired implementation type.
+    New(T)
 
-	// Iterator returns a type implementing iterator interface.
-	Iterator() (Iterator[T], error)
+	// Add ensures that this collection contains the specified element (optional operation).
+	Add(T) error
 
-	// TODO
-	//SplitIterator()(SplitIterator, error)
+	// AddAll adds all of the elements in the specified collection to this collection (optional operation).
+	AddAll([]T) error
+
+	// Clear clears Removes all of the elements from this collection (optional operation).
+	Clear() error
+
+	// Contains returns true if this collection contains the specified element.
+	Contains(T) bool
+
+	// ContainsAll returns true if this collection contains all of the elements in the specified collection.
+	ContainsAll([]T) bool
+
+	// Equals compares the specified object with this collection for equality.
+	Equals(T) bool
+
+	// HashCode returns the hash code value for this collection.
+    HashCode() hash.Hash
+
+    // IsEmpty returns true if this collection contains no elements.
+    IsEmpty() bool
+
+    // Iterator returns an iterator over the elements in this collection.
+    Iterator() Iterator[T]
+
+    // Remove removes a single instance of the specified element from this collection, if it is present (optional operation).
+    Remove(T) error
+
+    // RemoveAll removes all of this collection's elements that are also contained in the specified collection (optional operation).
+    removeAll() error
+
+    // RemoveIf removes all of the elements of this collection that satisfy the given predicate.
+	RemoveIf(func(T) bool) error
+
+    // RetailAll retains only the elements in this collection that are contained in the specified collection (optional operation).
+    RetailAll(func(T) bool) error
+
+    // Size returns the number of elements in this collection.
+    Size() int
+
+    // Stream returns a sequential Stream with this collection as its source.
+    Stream() <- chan T
+
+    // ToArray returns an array containing all of the elements in this collection.
+    ToArray() []T
 }
