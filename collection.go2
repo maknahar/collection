@@ -5,7 +5,7 @@ import "hash"
 
 var (
 	ErrUnsupportedOperation = errors.New("unsupported operation")
-	ErrInValidElement = errors.New("invalid element")
+	ErrInValidElement       = errors.New("invalid element")
 )
 
 // Iterators allow the caller to remove elements from the underlying collection during the iteration with
@@ -49,8 +49,8 @@ type Iterator[T any] interface {
 // mutated by another thread; this includes direct invocations, passing the collection to a method that might perform
 // invocations, and using an existing iterator to examine the collection.
 type Collector[T any] interface {
-    // New allows the user to copy any collection, producing an equivalent collection of the desired implementation type.
-    New(T)
+	// New allows the user to copy any collection, producing an equivalent collection of the desired implementation type.
+	New(T)
 
 	// Add ensures that this collection contains the specified element (optional operation).
 	Add(T) error
@@ -71,32 +71,32 @@ type Collector[T any] interface {
 	Equals(T) bool
 
 	// HashCode returns the hash code value for this collection.
-    HashCode() hash.Hash
+	HashCode() hash.Hash
 
-    // IsEmpty returns true if this collection contains no elements.
-    IsEmpty() bool
+	// IsEmpty returns true if this collection contains no elements.
+	IsEmpty() bool
 
-    // Iterator returns an iterator over the elements in this collection.
-    Iterator() Iterator[T]
+	// Iterator returns an iterator over the elements in this collection.
+	Iterator() Iterator[T]
 
-    // Remove removes a single instance of the specified element from this collection, if it is present (optional operation).
-    Remove(T) error
+	// Remove removes a single instance of the specified element from this collection, if it is present (optional operation).
+	Remove(T) error
 
-    // RemoveAll removes all of this collection's elements that are also contained in the specified collection (optional operation).
-    removeAll() error
+	// RemoveAll removes all of this collection's elements that are also contained in the specified collection (optional operation).
+	removeAll() error
 
-    // RemoveIf removes all of the elements of this collection that satisfy the given predicate.
+	// RemoveIf removes all of the elements of this collection that satisfy the given predicate.
 	RemoveIf(func(T) bool) error
 
-    // RetailAll retains only the elements in this collection that are contained in the specified collection (optional operation).
-    RetailAll(func(T) bool) error
+	// RetailAll retains only the elements in this collection that are contained in the specified collection (optional operation).
+	RetailAll(func(T) bool) error
 
-    // Size returns the number of elements in this collection.
-    Size() int
+	// Size returns the number of elements in this collection.
+	Size() int
 
-    // Stream returns a sequential Stream with this collection as its source.
-    Stream() <- chan T
+	// Stream returns a sequential Stream with this collection as its source.
+	Stream() <-chan T
 
-    // ToArray returns an array containing all of the elements in this collection.
-    ToArray() []T
+	// ToArray returns an array containing all of the elements in this collection.
+	ToArray() []T
 }
