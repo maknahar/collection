@@ -49,6 +49,9 @@ type Iterator[T any] interface {
 // mutated by another thread; this includes direct invocations, passing the collection to a method that might perform
 // invocations, and using an existing iterator to examine the collection.
 type Collector[T any] interface {
+
+	Iterator[T]
+
 	// New allows the user to copy any collection, producing an equivalent collection of the desired implementation type.
 	New(T)
 
@@ -79,9 +82,6 @@ type Collector[T any] interface {
 	// Iterator returns an iterator over the elements in this collection.
 	Iterator() Iterator[T]
 
-	// Remove removes a single instance of the specified element from this collection, if it is present (optional operation).
-	Remove(T) error
-
 	// RemoveAll removes all of this collection's elements that are also contained in the specified collection (optional operation).
 	removeAll() error
 
@@ -91,8 +91,8 @@ type Collector[T any] interface {
 	// RetailAll retains only the elements in this collection that are contained in the specified collection (optional operation).
 	RetailAll(func(T) bool) error
 
-	// Size returns the number of elements in this collection.
-	Size() int
+	// Len returns the number of elements in this collection.
+	Len() int
 
 	// Stream returns a sequential Stream with this collection as its source.
 	Stream() <-chan T
