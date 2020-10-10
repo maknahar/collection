@@ -1,0 +1,60 @@
+package collection
+
+import "sort"
+
+//An ordered collection (also known as a sequence). The user of this interface has precise control over where in
+//the list each element is inserted. The user can access elements by their integer index (position in the list),
+//and search for elements in the list.
+//
+//Unlike sets, lists typically allow duplicate elements. More formally, lists typically allow pairs of elements e1
+//and e2 such that e1.equals(e2), and they typically allow multiple null elements if they allow null elements at all.
+//It is not inconceivable that someone might wish to implement a list that prohibits duplicates, by throwing runtime
+//exceptions when the user attempts to insert them, but we expect this usage to be rare.
+//
+//The List interface places additional stipulations, beyond those specified in the Collection interface, on the
+//contracts of the iterator, add, remove, equals, and hashCode methods. Declarations for other inherited methods are
+//also included here for convenience.
+type List[T any] interface {
+	Collector[T]
+
+	sort.Interface
+
+	// Add inserts the specified element at the specified position in this list (optional operation).
+	AddOne(index int, element T) error
+
+	// AddMany appends all of the elements in the specified collection at the specified position, in the order that
+	// they are returned by the specified collection's iterator (optional operation).
+	AddMany(index int, elements []T) error
+
+	// Get returns the element at the specified position in this list.
+	Get(index int) (T, error)
+
+	// Index of returns the index of the first occurrence of the specified element in this list,
+	// or -1 if this list does not contain the element.
+	IndexOf(element T) int
+
+	// LastIndexOf Returns the index of the last occurrence of the specified element in this list, or -1 if this list does not contain the element.
+	LastIndexOf(element T) int
+
+	// RemoveFromIndex removes the element at the specified position in this list (optional operation).
+	RemoveFromIndex(index int) error
+
+	// RemoveElement removes the first occurrence of the specified element from this list,
+	// if it is present (optional operation).
+	RemoveElement(element T) int
+
+	// ReplaceAll replaces each element of this list with the result of applying the operator to that element.
+	ReplaceAll(modifier func(T) T) error
+
+	// RetainAll retains only the elements in this list that are contained in the specified collection
+	// (optional operation).
+	RetainAll(elements []T) error
+
+	// Set replaces the element at the specified position in this list with the specified element (optional operation).
+	Set(index int, element T) error
+
+	// Slice returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex,
+	// exclusive.
+	// TODO: Compiler panics if List[T] is returned
+	//Slice(i, j int) (List[T], error)
+}
